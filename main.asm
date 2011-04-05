@@ -8,6 +8,12 @@ str_invalid:	.asciiz "Input a valid choice (0 - 6).\n"
 str_full:	.asciiz "That column is full.\n"
 str_one_win:	.asciiz "Player 1 wins!\n"
 str_two_win:	.asciiz "Player 2 wins!\n"
+
+str_board_top:	.asciiz "_______________\n"
+str_board_rowl:	.asciiz "["
+str_board_rowr: .asciiz "]\n"
+str_board_div:	.asciiz "|"
+str_board_bott:	.asciiz "^^^^^^^^^^^^^^^\n"
 		.text
 		
 		
@@ -144,7 +150,53 @@ skip_two_wins:
 #									       #
 # void print_board(int* board);						       #
 ################################################################################
-print_board:	jr	$ra			# FIXME: Just return, do nothing
+print_board:	
+		addi	$sp, $sp, -4
+		sw	$ra, 0($sp)
+		
+		li	$v0, 4
+		la	$a0, str_board_top
+		syscall
+		
+		li	$s0, 5			# $s0 = row
+		li	$s1, 0			# $s1 = column
+start_row:
+		li	$v0, 4
+		la	$a0, str_board_rowl
+		syscall
+print_row:	
+		move	$a0, $s0
+		move	$a1, $s1
+		b	get
+		move	$a0, $v0
+		
+		li	$v0, 1
+		syscall
+		
+		addi	$s1, $s1, 1
+		bgt	$s1, 6, end_row
+		
+		li	$v0, 4
+		la	$a0, str_board_div
+		syscall
+		
+		b	print_row
+end_row:
+		li	$v0, 4
+		la	$a0, str_board_rowr
+		syscall
+		
+		addi	$s0, $s0, -1
+		blez	$s0, end_print_board
+		b	start_row
+end_print_board:
+		li	$v0, 4
+		la	$a0, str_board_bott
+		syscall
+		
+		lw	$ra, 0($sp)
+		addi	$sp, $sp, 4
+		jr	$ra
 
 
 
